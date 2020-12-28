@@ -6,6 +6,7 @@ local shieldMaxHealth = 1
 local shieldHealth = 0
 local shieldActive = false
 local soundPlayed = false
+local timer = false
 
 f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -132,76 +133,67 @@ end)
 
 function f:OnEvent(event, ...)
 	
-	local timestamp, subevent = ...
-	local amount, arg13
-	
-	local spellAbsorbedName = select(17, ...)
-	local spellAbsorbedNameSpell = select(20, ...)
-	local spellAuraRemovedName = select(13, ...)
+	local timestamp, subevent 		= ...
+	local amount 					= select(19, ...)
+	local spellAbsorbedName 		= select(17, ...)
+	local spellAbsorbedNameSpell 	= select(20, ...)
+	local spellAuraRemovedName 		= select(13, ...)
+	local soulDebuff = false
 
 	if subevent == "SPELL_ABSORBED" and spellAbsorbedName == spellName then
-		amount = select(19, ...)
 		shieldHealth = shieldHealth - amount
 		
 		else if subevent == "SPELL_ABSORBED" and spellAbsorbedNameSpell == spellName then
 			amount = select(22, ...)
 			shieldHealth = shieldHealth - amount
+			print("shieldHealth = ", shieldHealth)
 		end
 		
-		if shieldActive == true and shieldHealth <= shieldMaxHealth*0.29 then
+		if shieldActive == true and shieldHealth <= shieldMaxHealth*0.29 and soundPlayed == false then
 			PlaySoundFile("Interface/AddOns/ShieldHealth/sounds/signal.ogg", "Master")
 			soundPlayed = true
-			
-			if soundPlayed == true then
-				shieldActive = false
-			end
-		end
-		
-		if shieldHealth <= 0 then
-			shieldActive = false
-			shieldHealth = 0
-			ShieldHealthDebuff_UpdateText()
 		end
 		
 		ShieldHealth_UpdateText()
 	end
 	
-	if subevent == "SPELL_AURA_REMOVED" then
-		arg13 = select(13, ...)
-		print(arg13)
-	end
-	
-	if arg13 == spellName then
+	if shieldHealth <= 0 then
 		shieldActive = false
 		shieldHealth = 0
-		shieldStatus = "N/A"
 		ShieldHealthDebuff_UpdateText()
 	end
+	
+	if subevent == "SPELL_AURA_REMOVED" and spellAuraRemovedName == spellName then
+		shieldActive = false
+		shieldHealth = 0
+		ShieldHealthDebuff_UpdateText()
+	end
+	
 end
 
 function ShieldHealth_UpdateText()
 	
 	--grün 80% oder mehr
 	if shieldHealth >= shieldMaxHealth*0.80 then
-		local status = string.format("|cffd9d9d9%s\n|r |cff32cd32%d/%d\n%d\%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
+		local status = string.format("|cffd9d9d9%s\n|r |cff32cd32%d/%d\n%d%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
 		ShieldHealthFrameText:SetText(status)
 	end
 	
 	--gelb 79% bis 50%
 	if shieldHealth <= shieldMaxHealth*0.79 and shieldHealth >= shieldMaxHealth*0.5 then 
-		local status = string.format("|cffd9d9d9%s\n|r |cffffcc00%d/%d\n%d\%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
+		local status = string.format("|cffd9d9d9%s\n|r |cffffcc00%d/%d\n%d%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
 		ShieldHealthFrameText:SetText(status)
 	end 
 	
 	--orange 49% bis 30%
 	if shieldHealth <= shieldMaxHealth*0.49 and shieldHealth >= shieldMaxHealth*0.3 then 
-		local status = string.format("|cffd9d9d9%s\n|r |cffff6600%d/%d\n%d\%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
+		local status = string.format("|cffd9d9d9%s\n|r |cffff6600%d/%d\n%d%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
 		ShieldHealthFrameText:SetText(status)
 	end
 	
 	--rot 29% oder weniger
 	if shieldHealth <= shieldMaxHealth*0.29 then  
-		local status = string.format("|cffd9d9d9%s\n|r |cffff0000%d/%d\n%d\%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
+		local status = string.format("|cffd9d9d9%s\n|r |cffff0000%d/%d\n%d%%", shieldStatus, shieldHealth, shieldMaxHealth, (shieldHealth/shieldMaxHealth)*100)
 		ShieldHealthFrameText:SetText(status)
 	end
 	
