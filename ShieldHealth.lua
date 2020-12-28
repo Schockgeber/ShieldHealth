@@ -5,8 +5,8 @@ local shieldStatus = ""
 local shieldMaxHealth = 1
 local shieldHealth = 0
 local shieldActive = false
-local soundPlayed = false
 local timer = false
+local soundPlayed = false
 
 f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -146,12 +146,15 @@ function f:OnEvent(event, ...)
 		else if subevent == "SPELL_ABSORBED" and spellAbsorbedNameSpell == spellName then
 			amount = select(22, ...)
 			shieldHealth = shieldHealth - amount
-			print("shieldHealth = ", shieldHealth)
 		end
 		
-		if shieldActive == true and shieldHealth <= shieldMaxHealth*0.29 and soundPlayed == false then
+		if shieldActive == true and shieldHealth <= shieldMaxHealth*0.29 then
 			PlaySoundFile("Interface/AddOns/ShieldHealth/sounds/signal.ogg", "Master")
 			soundPlayed = true
+			
+			if soundPlayed == true then
+				shieldActive = false
+			end
 		end
 		
 		ShieldHealth_UpdateText()
