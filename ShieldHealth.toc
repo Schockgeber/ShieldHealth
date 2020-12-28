@@ -1,0 +1,7 @@
+## Interface: 30200
+## Title: ShieldHealth
+## Notes: Zeigt die HP des Schilds an und warnt bei niedrigem Wert. (V 0.7 by Schockgeber @Transcendence - EU)
+## Version: 0.7
+## Author: Schockgeber @Transcendence - EU
+ShieldHealth.lua
+ShieldHealth.xml
