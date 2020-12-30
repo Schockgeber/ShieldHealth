@@ -153,6 +153,15 @@ function f:OnEvent(event, ...)
 		ShieldHealth_UpdateText()
 	end
 	
+	if shieldActive == true and shieldHealth <= shieldMaxHealth*0.29 then
+		PlaySoundFile("Interface/AddOns/ShieldHealth/sounds/signal.ogg", "Master")
+		soundPlayed = true
+			
+		if soundPlayed == true then
+			shieldActive = false
+		end
+	end
+	
 	if shieldHealth <= 0 then
 		shieldActive = false
 		shieldHealth = 0
